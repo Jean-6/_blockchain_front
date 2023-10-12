@@ -1,0 +1,8 @@
+html, body {
+  height: 98%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background-image: url("../assets/body-bg.jpg");
+  font-family: 'Roboto', sans-serif;
+}
