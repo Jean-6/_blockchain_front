@@ -1,18 +1,13 @@
 import "../styles/SideNav.css";
+import {Link} from "react-router-dom";
 
 function SideNav() {
     return (
         <div className="side-nav">
             <div className="ul">
-                <div className="li">
-                    Duel
-                </div>
-                <div className="li">
-                    Mes cartes
-                </div>
-                <div className="li">
-                    Boutique
-                </div>
+                <Link className="li" to="/cards">Duel</Link>
+                <Link className="li" to="/cards">Cards</Link>
+                <Link className="li" to="/cards">Boutique</Link>
             </div>
         </div>
     );
