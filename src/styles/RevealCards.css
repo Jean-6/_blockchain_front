@@ -44,8 +44,7 @@
     animation: fadeIn 1s ease forwards;
 }
 
-.reveal-div.revealed .image-cartes-verso{
-    box-shadow: 0 0 20px 0 transparent;
+.reveal-div.revealed .image-cartes-verso {
     animation: fadeIn 1s ease forwards;
 }
 
