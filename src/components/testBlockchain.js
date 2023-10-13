@@ -13,7 +13,7 @@ const transactionObject = {
     to: contractAddress,
     data: functionCallData,
     value: web3.utils.toWei('0.01', 'ether'),
-    gas: web3.utils.toHex(21064),
+    gas: web3.utils.toHex(500000),
     gasPrice: web3.utils.toHex(web3.utils.toWei('10', 'gwei')),
     from: accountAddress
 };
