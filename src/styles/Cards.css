@@ -28,9 +28,13 @@ img {
     overflow: hidden;
 }
 
+.card-image img {
+    transition: 1s;
+}
+
 .card-image:hover img {
     transition: 0.5s;
-    filter: brightness(20%);
+    filter: brightness(10%);
 }
 
 .card-image:hover .info-card {
@@ -63,7 +67,7 @@ img {
     box-shadow: 0 0 5px 0 rebeccapurple;
 }
 
-.legendary {
+.legendaire {
     margin: auto;
     display: grid;
 
@@ -95,11 +99,11 @@ img {
         }
     }
 
-    .legendary {
+    .legendaire {
         animation: rotate 10s linear infinite;
     }
 }
 
-.row{
+.row {
     display: flex;
 }

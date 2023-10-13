@@ -1,0 +1,68 @@
+.row {
+    display: flex;
+}
+
+.global-boutique {
+    width: 100%;
+}
+
+.title-boutique {
+    text-align: center;
+    color: white;
+}
+
+.shop-all {
+    width: 100%;
+    margin-top: 10%;
+    display: flex;
+    justify-content: center;
+    animation: fadeIn 1s ease forwards;
+}
+
+.shop {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 40%;
+    min-width: 300px;
+    background-color: rgba(1, 6, 27, 0.70);
+    border-radius: 30px;
+
+}
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+.image-cartes {
+    width: 60%;
+    text-align: center;
+}
+
+input {
+    margin-bottom: 20px;
+    display: inline-block;
+    outline: 0;
+    cursor: pointer;
+    text-align: center;
+    border: 0;
+    padding: 7px 16px;
+    min-height: 36px;
+    min-width: 36px;
+    color: #ffffff;
+    background: #244d6a;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 14px;
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 0px 0px, rgba(0, 0, 0, 0.2) 0px -1px 0px 0px inset;
+}
+
+input:hover {
+    background: #144059;
+}
+
+

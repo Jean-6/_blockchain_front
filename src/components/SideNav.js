@@ -6,8 +6,8 @@ function SideNav() {
         <div className="side-nav">
             <div className="ul">
                 <Link className="li" to="/cards">Duel</Link>
-                <Link className="li" to="/cards">Cards</Link>
-                <Link className="li" to="/cards">Boutique</Link>
+                <Link className="li" to="/cards">Mes cartes</Link>
+                <Link className="li" to="/boutique">Boutique</Link>
             </div>
         </div>
     );

@@ -1,0 +1,109 @@
+.image-cartes-verso {
+    width: 200px;
+    text-align: center;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    box-shadow: 0 0 20px 0 rebeccapurple;
+    transition: box-shadow 0.3s ease;
+}
+
+.commune-verso {
+    box-shadow: 0 0 20px 0 cornflowerblue;
+}
+
+.epique-verso {
+    box-shadow: 0 0 20px 0 rebeccapurple;
+}
+
+.legendaire-verso {
+    box-shadow: 0 0 20px 0 white;
+}
+
+.commune-verso:hover {
+    box-shadow: 0 0 40px 0 cornflowerblue;
+}
+
+.epique-verso:hover {
+    box-shadow: 0 0 40px 0 rebeccapurple;
+}
+
+.legendaire-verso:hover {
+    box-shadow: 0 0 40px 0 white;
+}
+
+.reveal-div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 40%;
+    min-width: 300px;
+    background-color: rgba(1, 6, 27, 0.70);
+    border-radius: 30px;
+    cursor: pointer;
+    animation: fadeIn 1s ease forwards;
+}
+
+.reveal-div.revealed .image-cartes-verso{
+    box-shadow: 0 0 20px 0 transparent;
+    animation: fadeIn 1s ease forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.commune {
+    width: 100%;
+    height: 98%;
+    border-radius: 10px;
+}
+
+.epique {
+    width: 100%;
+    height: 98%;
+    border-radius: 10px;
+    box-shadow: 0 0 5px 0 rebeccapurple;
+}
+
+.legendaire {
+    margin: auto;
+    display: grid;
+
+    border-radius: 10px;
+    /* Paint an image in the border */
+    background: conic-gradient(
+            from var(--angle),
+            white 0deg 90deg,
+            transparent 90deg 180deg,
+            white 180deg 270deg,
+            transparent 270deg 360deg
+    );
+    padding: 2px;
+    box-shadow: 0 0 5px 0 white;
+}
+
+
+@supports (background: paint(houdini)) {
+
+    @property --angle {
+        syntax: "<angle>";
+        initial-value: 0deg;
+        inherits: false;
+    }
+
+    @keyframes rotate {
+        to {
+            --angle: 360deg;
+        }
+    }
+
+    .legendaire {
+        animation: rotate 10s linear infinite;
+    }
+}

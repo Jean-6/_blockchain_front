@@ -1,6 +1,7 @@
 .side-nav{
     width: 200px;
     background-color: #01061b;
+    min-height: 100vh;
 }
 .ul{
     height: 50%;

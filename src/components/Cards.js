@@ -26,45 +26,29 @@ function Cards() {
             <div className="global-cards">
                 <h1 className="title-cards">Mes cartes</h1>
                 <div className="cards">
-                    {/*               <ul>
-                    {donnees.map((user) => (
-                        <li key={user.description}>
-                            {user.name}
-                        </li>
-                    ))}
-                </ul>*/}
-                    <div className="commune card-image">
-                        <img src="http://51.38.190.134:1155/images/1.png" alt="card"/>
-                        <div className="info-card">
-                            <p>Zen</p>
-                            <p>Zen</p>
-                            <p>Zen</p>
+
+                    {donnees.map((card) => (
+                        <div className={`card-image ${card.attributes.rarity === 'commune' ? 'commune' :
+                            card.attributes.rarity === 'epique' ? 'epique' : 'legendaire'}`}>
+                            <img src={"http://" + card.image} alt="card"/>
+                            <div className="info-card">
+                                <p>{card.attributes.name}</p>
+                                <p>{card.attributes.team}</p>
+                                <div style={{marginTop: 60}}>
+                                    <div style={{display: "flex", justifyContent: "space-around"}}>
+                                        <i className="fa-solid fa-gears"></i>
+                                        <i className="fa-solid fa-eye"></i>
+                                        <i className="fa-solid fa-handshake-simple"></i></div>
+                                    <div style={{display: "flex", justifyContent: "space-around"}}>
+                                        <p>{card.attributes.stats.mechanique}</p>
+                                        <p>{card.attributes.stats.vision_de_jeu}</p>
+                                        <p>{card.attributes.stats.teamplay}</p>
+                                    </div>
+                                </div>
+                                <p  style={{marginTop: 50}}>{card.attributes.rarity}</p>
+                            </div>
                         </div>
-                    </div>
-                    <div className="epique">
-                        <img src="http://51.38.190.134:1155/images/2.png" alt="card"/>
-                    </div>
-                    <div className="legendary">
-                        <img src="http://51.38.190.134:1155/images/3.png" alt="card"/>
-                    </div>
-                    <div className="commune">
-                        <img src="http://51.38.190.134:1155/images/4.png" alt="card"/>
-                    </div>
-                    <div className="epique">
-                        <img src="http://51.38.190.134:1155/images/5.png" alt="card"/>
-                    </div>
-                    <div className="legendary">
-                        <img src="http://51.38.190.134:1155/images/6.png" alt="card"/>
-                    </div>
-                    <div className="commune">
-                        <img src="http://51.38.190.134:1155/images/7.png" alt="card"/>
-                    </div>
-                    <div className="epique">
-                        <img src="http://51.38.190.134:1155/images/8.png" alt="card"/>
-                    </div>
-                    <div className="legendary">
-                        <img src="http://51.38.190.134:1155/images/9.png" alt="card"/>
-                    </div>
+                    ))}
                 </div>
             </div>
         </div>
