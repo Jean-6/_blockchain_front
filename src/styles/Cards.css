@@ -107,3 +107,15 @@ img {
 .row {
     display: flex;
 }
+
+.rarity-filter {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+}
+
+.react-container {
+    width: 30%;
+}
+
+

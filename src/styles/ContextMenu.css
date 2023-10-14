@@ -1,0 +1,32 @@
+.contextMenu {
+    background-color: #01061b;
+    border-radius: 20px;
+    border: 1px solid white;
+}
+
+.contextmenu {
+    display: none;
+    position: absolute;
+    width: 150px;
+    height: 100px;
+    z-index: 10;
+}
+
+a {
+    display: flex;
+    justify-content: center;
+    text-decoration: none;
+    color: white;
+    padding: 8px;
+}
+
+.div-a {
+    text-align: center;
+    border-radius: 10px;
+    margin: 5px;
+}
+
+.div-a:hover {
+    cursor: pointer;
+    background-color: #1e2033;
+}
