@@ -37,7 +37,7 @@ function RevealCards({idCard}) {
             <div className="shop-all">
                 <div key={1} className={`reveal-div ${revealed ? 'revealed' : ''}`} onClick={handleCardClick}>
                     <img
-                        src={revealed ? "http://" + donnees.image : 'crad-verso.png'}
+                        src={revealed ? donnees.image : 'crad-verso.png'}
                         alt="cartes"
                         className={`image-cartes-verso ${donnees.attributes.rarity === 'commune' ? 'commune-verso' :
                             donnees.attributes.rarity === 'epique' ? 'epique-verso' : 'legendaire-verso'}`}

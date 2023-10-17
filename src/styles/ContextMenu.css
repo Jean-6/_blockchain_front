@@ -1,14 +1,15 @@
 .contextMenu {
-    background-color: #01061b;
-    border-radius: 20px;
-    border: 1px solid white;
+
 }
 
 .contextmenu {
+    background-color: #01061b;
+    border-radius: 20px;
+    border: 1px solid white;
     display: none;
     position: absolute;
     width: 150px;
-    height: 100px;
+    height: fit-content;
     z-index: 10;
 }
 
@@ -29,4 +30,14 @@ a {
 .div-a:hover {
     cursor: pointer;
     background-color: #1e2033;
+}
+
+.input-number{
+    width: 150px;
+    height: 10px;
+    border-radius: 5px;
+    border: 1px solid white;
+    background-color: #01061b;
+    color: white;
+    text-align: center;
 }

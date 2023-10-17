@@ -3,17 +3,10 @@ import apiService from "../services/ApiService.js";
 import "../styles/Cards.css";
 import "../styles/ContextMenu.css";
 import SideNav from "./SideNav.js";
-import Web3 from "web3";
-import abiJson from "../abi.json";
 import Loader from "./Loader.js";
 import Select from 'react-select';
+import {contractInstance, accountAddress, contractAddress} from "../config.js";
 
-const network = 'https://eth-sepolia.g.alchemy.com/v2/ABRLHWqw7mF6DYgLygNgwsUpMnQ5XGh5';
-const web3 = new Web3(new Web3.providers.HttpProvider(network));
-const contractAddress = '0x72840AB60269A8b336695cB3759A97a15Bc08E7b';
-let contractABI = abiJson.abi;
-const contractInstance = new web3.eth.Contract(contractABI, contractAddress);
-const accountAddress = '0xec21c4104eca69655f7d5e959df27489382d0447';
 let cardsPlayer = [];
 let listJsonCards = [];
 let apiData = [];
@@ -42,7 +35,6 @@ async function fetchDataFromApiAndContract(setDonnees, setLoading) {
                 listJsonCards.push(apiData);
             }
         }
-        console.log(listJsonCards)
         setDonnees(listJsonCards);
         setLoading(false);
     } catch (error) {
@@ -55,11 +47,17 @@ function Cards() {
     const style = {
         control: base => ({
             ...base,
-            border: 0,
+            skipHoverCheck: true,
+            border: "1px solid white",
+            '&:hover': {
+                border: "1px solid white", // Désactiver la bordure bleue au focus
+            },
             // This line disable the blue border
             boxShadow: "none",
             marginTop: 30,
+            background: "transparent",
         })
+
     };
     const [donnees, setDonnees] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -81,24 +79,32 @@ function Cards() {
         contextMenu.style.top = e.pageY + "px";
         let linkOpenSea = document.querySelector("#linkOpenSea");
         linkOpenSea.href = "https://testnets.opensea.io/assets/" + contractAddress + "/" + idCard;
+        document.body.addEventListener('click', disableContextMenu, true);
+        const queryParams = {
+            idCard: idCard,
+            fight: true
+        };
+        const queryString = new URLSearchParams(queryParams).toString();
+        let duelId = document.querySelector("#duelId");
+        duelId.href = "/duel?" + queryString;
     }
 
     function disableContextMenu() {
+        if (document.querySelector(".contextmenu") === null) return;
         let contextMenu = document.querySelector(".contextmenu");
         contextMenu.style.display = "none";
     }
 
-    document.body.addEventListener('click', disableContextMenu, true);
     return (
         <div className="row">
             <SideNav/>
             <div className="global-cards">
-                <div className="contextmenu contextMenu">
-                    <div className="div-a" style={{marginTop : 10}}>
-                        <a id="linkOpenSea" target={"_blank"}>OpenSea</a>
+                <div className="contextmenu">
+                    <div className="div-a" style={{marginTop: '10px'}}>
+                        <a id="duelId">Duel</a>
                     </div>
                     <div className="div-a">
-                        <a id="linkOpenSea" target={"_blank"}>OpenSea</a>
+                        <a id="linkOpenSea" target="_blank">OpenSea</a>
                     </div>
                 </div>
                 <h1 className="title-cards">Mes cartes</h1>
@@ -123,7 +129,7 @@ function Cards() {
                                 <div key={index}
                                      className={`card-image ${card.attributes.rarity === 'commune' ? 'commune' :
                                          card.attributes.rarity === 'epique' ? 'epique' : 'legendaire'}`}>
-                                    <img src={"http://" + card.image} alt="card"/>
+                                    <img src={card.image} alt="card"/>
                                     <div className="info-card" onClick={event => {
                                         displayContextMenu(event, card.idCard)
                                     }}>
@@ -156,7 +162,6 @@ function Cards() {
                         )
                     )}
                 </div>
-
             </div>
         </div>
     );
