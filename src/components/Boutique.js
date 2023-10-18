@@ -4,7 +4,7 @@ import SideNav from "./SideNav.js";
 import RevealCards from "./RevealCards.js";
 import Loader from "./Loader.js";
 
-import {contractInstance, accountAddress, contractAddress, web3} from "../config.js";
+import {contractInstance, accountAddress, contractAddress, web3, privateKey} from "../config.js";
 
 let idCard;
 
@@ -42,7 +42,7 @@ function Boutique() {
                 gasPrice: web3.utils.toHex(web3.utils.toWei('10', 'gwei')),
                 from: accountAddress,
             };
-            const signedTx = await web3.eth.accounts.signTransaction(transactionObject, '947727c5c4f19411fbaae0bbe96ea0811d3d2729175cfa9a8287e92ad9686c06');
+            const signedTx = await web3.eth.accounts.signTransaction(transactionObject, privateKey);
             const receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
             const events = await contractInstance.getPastEvents('TransferSingle', {
                 fromBlock: receipt.blockNumber,

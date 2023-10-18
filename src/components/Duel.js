@@ -1,12 +1,13 @@
 import React, {useEffect, useState} from "react";
 import SideNav from "./SideNav.js";
 import {useLocation} from "react-router-dom";
-import {accountAddress, contractInstance} from "../config.js";
 import apiService from "../services/ApiService.js";
 import Loader from "./Loader.js";
 import Modal from "react-modal";
+
 import "../styles/Cards.css";
 import "../styles/Duel.css";
+import {contractInstance, accountAddress, contractAddress, web3, privateKey} from "../config.js";
 
 let cardsPlayer = [];
 let jsonCards;
@@ -39,19 +40,40 @@ async function fetchDataFromApiAndContract(setDonnees, setLoading, idCard) {
     }
 }
 
+async function validateDuelPlayer1(idCard, setLoading) {
+    try {
+        setLoading(true);
+        const functionCallData = contractInstance.methods.initBattle(idCard).encodeABI();
+        const transactionObject = {
+            to: contractAddress,
+            data: functionCallData,
+            value: web3.utils.toWei('0.000001', 'ether'),
+            gas: web3.utils.toHex(700000),
+            gasPrice: web3.utils.toHex(web3.utils.toWei('10', 'gwei')),
+            from: accountAddress,
+        };
+        const signedTx = await web3.eth.accounts.signTransaction(transactionObject, privateKey);
+        await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
+        setLoading(false);
+    } catch (error) {
+        console.error('Error:', error);
+        setLoading(false);
+    }
+}
+
+
 function Duel() {
+    Modal.setAppElement('#root');
     const [modalIsOpen, setModalIsOpen] = useState(true);
     const closeModal = () => {
         setModalIsOpen(false);
         setDonnees(null);
         window.history.replaceState({}, document.title, "/" + "duel");
     };
-    const openModal = () => {
-        setModalIsOpen(true);
-    };
+
     const location = useLocation();
     const [donnees, setDonnees] = useState({});
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
         const fight = queryParams.get("fight");
@@ -68,40 +90,42 @@ function Duel() {
         <div className="row">
             <SideNav/>
             {donnees ? (
-                loading ? (
-                    <Loader/>
-                ) : (
-                    <Modal
-                        isOpen={modalIsOpen}
-                        onRequestClose={closeModal}
-                        contentLabel="Exemple de Modale"
-                        style={{
-                            overlay: {
-                                backgroundColor: 'rgba(0, 0, 0, 0.5)'
-                            },
-                            content: {
-                                backgroundColor: 'rgba(1,6,27,0.63)',
-                                boxShadow: '0 0 10px white',
-                                border: 'none',
-                                padding: '20px',
-                                borderRadius: '20px',
-                                width: '300px',
-                                height: '500px',
-                                margin: 'auto',
-                                overflow: 'hidden'
-                            }
-                        }}
-                    >
-                        <button className="btn-modal-close" onClick={closeModal}>X</button>
-                        <div className="card-modal">
-                            <img src={donnees.image} alt="card"/>
-                            <br></br>
-                            <input type="number" placeholder="Montant..."
-                                   style={{background: "transparent", border: "1px solid white"}}/>
-                            <input type="button" value="Valider" className="btn-modal-valider" onClick={closeModal}/>
-                        </div>
-                    </Modal>
-                )
+                <Modal
+                    isOpen={modalIsOpen}
+                    onRequestClose={closeModal}
+                    contentLabel="Exemple de Modale"
+                    style={{
+                        overlay: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.5)'
+                        },
+                        content: {
+                            backgroundColor: 'rgba(1,6,27,0.63)',
+                            boxShadow: '0 0 10px white',
+                            border: 'none',
+                            padding: '20px',
+                            borderRadius: '20px',
+                            width: '300px',
+                            height: '500px',
+                            margin: 'auto',
+                            overflow: 'hidden'
+                        }
+                    }}
+                >
+                    <button className="btn-modal-close" onClick={closeModal}>X</button>
+                    <div className="card-modal">
+                        <img src={donnees.image} alt="card"/>
+                        <br></br>
+                        <input type="number" placeholder="Montant..."
+                               style={{background: "transparent", border: "1px solid white"}}/>
+
+                        {loading ? (
+                            <Loader/>
+                        ) : (
+                            <input type="button" value="Valider" className="btn-modal-valider"
+                                   onClick={() => validateDuelPlayer1(donnees.idCard, setLoading)}/>
+                        )}
+                    </div>
+                </Modal>
             ) : (
                 <div className="div-title">
                     <h1 className="title-boutique">Duel</h1>
