@@ -1,6 +1,6 @@
 import "../styles/SideNav.css";
 import {Link} from "react-router-dom";
-import {contractInstance, accountAddress, contractAddress} from "../config.js";
+
 function SideNav() {
     return (
         <div className="side-nav">

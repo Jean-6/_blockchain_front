@@ -49,10 +49,19 @@
     overflow-y: scroll;
     border-radius: 20px;
     text-align: center;
-}
-.border-div h3{
     color: white;
 }
-.border-div::-webkit-scrollbar{
+
+.border-div h3 {
+    color: white;
+}
+
+.border-div::-webkit-scrollbar {
     display: none;
+}
+
+.allDuel-global {
+    background-color: rgba(1, 6, 27, 0.32);
+    margin-top: 5%;
+    width: 100%;
 }
