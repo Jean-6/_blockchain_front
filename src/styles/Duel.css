@@ -65,3 +65,9 @@
     margin-top: 5%;
     width: 100%;
 }
+.modal-style-choose-card::-webkit-scrollbar {
+    display: none;
+}
+.modal-style-choose-card:focus {
+    outline: none;
+}

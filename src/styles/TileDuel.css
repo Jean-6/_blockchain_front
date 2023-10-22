@@ -8,20 +8,42 @@
 .tile-local {
     display: flex;
     cursor: pointer;
-    justify-content: center;
-    margin: 10px;
+    justify-content: space-evenly;
     width: 100%;
+    align-items: center;
 }
 
 .tile-image {
     width: 50px;
     height: 50px;
     border-radius: 90px;
-    margin-right: 15px;
+}
+
+.modal-img-tile {
+    width: 200px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.modal-choose-card {
+    width: 200px;
+    height: 283px;
+    border: 1px solid white;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center; /* Aligne l'élément au centre horizontalement */
+    align-items: center;
+
+}
+
+.btn-modal-valider-tile {
+    background: transparent;
+    border: 1px solid white;
+    color: white;
 }
 
 .text-tile {
-    margin-top: 20px;
     font-size: 13px !important;
 }
 
@@ -30,9 +52,18 @@
     flex-direction: row-reverse;
 }
 
-.reversed-div .tile-image {
-    margin-right: 0;
-    margin-left: 15px;
+.card-modal-tile {
+    margin-top: 40px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 200px);
+    gap: 10px 10px;
+    justify-content: center;
+}
+
+.card-modal-tile-global {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
 }
 
 p {
