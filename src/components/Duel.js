@@ -72,6 +72,7 @@ async function getAllBattle(setListAllDuelsWaiting, setListDuelsWaiting, setList
         setListDuelsFinished([]);
         results.forEach(result => {
             const duelData = {
+                battleId: result.battleId,
                 amountPlayer1: result.amountPlayer1,
                 amountPlayer2: result.amountPlayer2,
                 cardIdPlayer1: result.cardIdPlayer1,
@@ -137,14 +138,14 @@ function Duel() {
         if (dataLoaded) {
             const updatedDuels = listDuels.map(duel => {
                 let updatedDuel = {...duel}; // Créez un nouvel objet en copiant les propriétés de duel
-                if (duel.player1 !== accountAddress && duel.player2 !== accountAddress) {
+                if (duel.player1.toLowerCase() !== accountAddress.toLowerCase() && duel.player2.toLowerCase() !== accountAddress.toLowerCase()) {
                     updatedDuel.mine = false;
                 }
                 return updatedDuel;
             });
             updatedDuels.forEach(duel => {
-                if (duel.player1 === accountAddress || duel.player2 === accountAddress) {
-                    if (duel.player1 === accountAddress) {
+                if (duel.player1.toLowerCase() === accountAddress.toLowerCase() || duel.player2.toLowerCase() === accountAddress.toLowerCase()) {
+                    if (duel.player1.toLowerCase() === accountAddress.toLowerCase()) {
                         if (duel.status === "waitP2") {
                             setListDuelsWaiting(listDuelsWaiting => [...listDuelsWaiting, duel]);
                         } else if (duel.status === "waitP1") {
@@ -183,7 +184,7 @@ function Duel() {
         setLoading(false);
         setModalIsOpen(false);
         setDonnees(null);
-        window.history.replaceState({}, document.title, "/" + "duel");
+        window.history.replaceState({}, document.title, "/duel");
     };
     return (
         <div className="row">
@@ -221,7 +222,9 @@ function Duel() {
                             <Loader/>
                         ) : (
                             <input type="button" value="Valider" className="btn-modal-valider"
-                                   onClick={() => validateDuelPlayer1(donnees.idCard, setLoading)}/>
+                                   onClick={() => validateDuelPlayer1(donnees.idCard, setLoading).then(() =>
+                                       closeModal()
+                                   )}/>
                         )}
                     </div>
                 </Modal>

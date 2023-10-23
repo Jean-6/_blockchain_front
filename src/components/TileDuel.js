@@ -1,6 +1,6 @@
 import "../styles/TileDuel.css";
 
-import {accountAddress, contractInstance, web3} from "../config.js";
+import {accountAddress, contractAddress, contractInstance, privateKey, web3} from "../config.js";
 import apiService from "../services/ApiService.js";
 import React, {useEffect, useState} from "react";
 import Modal from "react-modal";
@@ -22,7 +22,9 @@ async function fetchAllCardsFromPlayer() {
             apiData = [];
             for (let i = 0; i < result.length; i++) {
                 if (result[i] !== "0") {
-                    apiData.push(await apiService.fetchData(i + 1));
+                    let fetchData = await apiService.fetchData(i + 1);
+                    fetchData.cardIdPlayer2 = i + 1;
+                    apiData.push(fetchData);
                 }
             }
         })
@@ -37,6 +39,7 @@ function TileDuel({duel}) {
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [modalIsOpenChooseCard, setModalIsOpenChooseCard] = useState(false);
     const [donnees, setDonnees] = useState({attributes: {stats: {}}});
+    const [donneesPlayer2, setDonneesPlayer2] = useState({attributes: {stats: {}}});
     const [donneesChoseCardPlayer2, setDonneesChoseCardPlayer2] = useState({attributes: {rariry: ""}});
     const [loadingAddPlayer2, setLoadingAddPlayer2] = useState(false);
     const [allCardsFromPlayer, setAllCardsFromPlayer] = useState([]);
@@ -50,6 +53,12 @@ function TileDuel({duel}) {
         fetchDataFromApiAndContract(setDonnees, duel.cardIdPlayer1).then(result => {
             setDonnees(result);
         });
+        if (duel.cardIdPlayer2 !== "0") {
+            fetchDataFromApiAndContract(setDonneesPlayer2, duel.cardIdPlayer2).then(result => {
+                setDonneesPlayer2(result);
+                console.log(result)
+            });
+        }
     }, []);
     const modifyPoints = async (card) => {
         if (card.attributes.rarity === "commune") {
@@ -66,6 +75,7 @@ function TileDuel({duel}) {
             vision_de_jeu: 0,
             teamplay: 0
         });
+        setDonneesChoseCardPlayer2({attributes: {rariry: ""}})
         setModalIsOpenChooseCard(false)
         setModalIsOpen(false);
     };
@@ -104,8 +114,35 @@ function TileDuel({duel}) {
     const handleValidatePlayer2 = async (card) => {
         try {
             setLoadingAddPlayer2(true);
-            console.log(card);
-            console.log(duel)
+            /*TODO change amount by the algo for define amount of player2*/
+            let amountPlayer2 = duel.amountPlayer1;
+            let idCard = card.cardIdPlayer2;
+            let battleId = parseInt(duel.battleId);
+            /*stats array of int*/
+            let statsArray = [card.attributes.stats.mechanique + stats.mecanique,
+                card.attributes.stats.vision_de_jeu + stats.vision_de_jeu,
+                card.attributes.stats.teamplay + stats.teamplay];
+
+            console.log(statsArray, idCard, battleId);
+            const functionCallData = contractInstance.methods.selectBattle(idCard, battleId, statsArray).encodeABI();
+            const transactionObject = {
+                to: contractAddress,
+                data: functionCallData,
+                value: web3.utils.toWei('0.000001', 'ether'),
+                gas: web3.utils.toHex(5000000),
+                gasPrice: web3.utils.toHex(web3.utils.toWei('10', 'gwei')),
+                from: accountAddress,
+            };
+            const signedTx = await web3.eth.accounts.signTransaction(transactionObject, privateKey);
+            const receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
+            const events = await contractInstance.getPastEvents('BattleSelected', {
+                fromBlock: receipt.blockNumber,
+                toBlock: receipt.blockNumber
+            });
+            setLoadingAddPlayer2(false);
+            if (events[0].returnValues._res) {
+                closeModal();
+            }
         } catch (error) {
             setLoadingAddPlayer2(false);
             console.error('Error:', error);
@@ -165,9 +202,9 @@ function TileDuel({duel}) {
                                         <i className="fa-solid fa-handshake-simple"></i>
                                     </div>
                                     <div style={{display: "flex", justifyContent: "space-around"}}>
-                                        <p>{donnees.attributes.stats.mechanique} + {stats.mecanique}</p>
-                                        <p>{donnees.attributes.stats.vision_de_jeu} + {stats.vision_de_jeu}</p>
-                                        <p>{donnees.attributes.stats.teamplay} + {stats.teamplay}</p>
+                                        <p>{donneesChoseCardPlayer2.attributes.stats.mechanique} + {stats.mecanique}</p>
+                                        <p>{donneesChoseCardPlayer2.attributes.stats.vision_de_jeu} + {stats.vision_de_jeu}</p>
+                                        <p>{donneesChoseCardPlayer2.attributes.stats.teamplay} + {stats.teamplay}</p>
                                     </div>
                                     <div style={{display: "flex", justifyContent: "space-around"}}>
                                         <i className="fa-solid fa-circle-plus" style={{color: "white", fontSize: 20}}
@@ -211,9 +248,9 @@ function TileDuel({duel}) {
                         <Loader/>
                     ) : (
                         <input type="button" value="Valider" className="btn-modal-valider-tile" style={{width: 200}}
-                        onClick={()=>{
-                            handleValidatePlayer2(donneesChoseCardPlayer2);
-                        }}/>
+                               onClick={() => {
+                                   handleValidatePlayer2(donneesChoseCardPlayer2);
+                               }}/>
                     )}
                 </div>
             </Modal>
@@ -277,8 +314,8 @@ function TileDuel({duel}) {
             {
                 duel.cardIdPlayer2 !== "0" ? (
                     <div className="tile-local reversed-div">
-                        <img className="tile-image" src={donnees.image} alt="Card"/>
-                        <p className="text-tile">{web3.utils.fromWei(duel.amountPlayer1) + ' ethh'}</p>
+                        <img className="tile-image" src={donneesPlayer2.image} alt="Card"/>
+                        <p className="text-tile">{web3.utils.fromWei(duel.amountPlayer2) + ' ethh'}</p>
                     </div>
                 ) : (
                     <div className="tile-local">
