@@ -7,6 +7,7 @@ import Modal from "react-modal";
 
 import "../styles/Cards.css";
 import "../styles/Duel.css";
+import "../styles/TileDuel.css";
 import {contractInstance, accountAddress, contractAddress, web3, privateKey} from "../config.js";
 import TileDuel from "./TileDuel.js";
 
@@ -98,6 +99,7 @@ async function getAllBattle(setListAllDuelsWaiting, setListDuelsWaiting, setList
 function Duel() {
     Modal.setAppElement('#root');
     const [modalIsOpen, setModalIsOpen] = useState(true);
+    const [modalIsOpenAVousDeJouer, setModalIsOpenAVousDeJouer] = useState(false);
     const [listDuels, setListDuels] = useState([]);
     const [listAllDuelsWaiting, setListAllDuelsWaiting] = useState([]);
     const [listDuelsWaiting, setListDuelsWaiting] = useState([]);
@@ -106,7 +108,16 @@ function Duel() {
     const location = useLocation();
     const [donnees, setDonnees] = useState({});
     const [loading, setLoading] = useState(false);
+    const [loadingAddPlayer1, setLoadingAddPlayer1] = useState(false);
     const [dataLoaded, setDataLoaded] = useState(false);
+    const [dataPlayer1, setDataPlayer1] = useState({attributes: {stats: {}}});
+    const [dataPlayer2, setDataPlayer2] = useState({attributes: {stats: {}}});
+    const [points, setPoints] = useState(0);
+    const [stats, setStats] = useState({
+        mecanique: 0,
+        vision_de_jeu: 0,
+        teamplay: 0
+    });
 
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
@@ -169,7 +180,17 @@ function Duel() {
                 }
             });
         }
+        console.log(listDuels)
     }, [dataLoaded]);
+    const modifyPoints = async (card) => {
+        if (card.attributes.rarity === "commune") {
+            setPoints(10);
+        } else if (card.attributes.rarity === "epique") {
+            setPoints(15);
+        } else if (card.attributes.rarity === "legendaire") {
+            setPoints(20);
+        }
+    }
     const closeModal = async () => {
         setDonnees(null);
         await getAllBattle(
@@ -185,6 +206,73 @@ function Duel() {
         setModalIsOpen(false);
         setDonnees(null);
         window.history.replaceState({}, document.title, "/duel");
+    };
+    const closeModalAVousDeJouer = async () => {
+        setStats({
+            mecanique: 0,
+            vision_de_jeu: 0,
+            teamplay: 0
+        });
+        setModalIsOpenAVousDeJouer(false);
+    };
+    const openModalAVousDeJouer = async (duel) => {
+        setDataPlayer1({attributes: {stats: {}}});
+        setDataPlayer2({attributes: {stats: {}}});
+        const idCardPlayer1 = duel.cardIdPlayer1;
+        const idCardPlayer2 = duel.cardIdPlayer2;
+        const statsPlayer2 = duel.statsPlayer2;
+        const idBattle = duel.battleId;
+
+        try {
+            const [apiDataPlayer1, apiDataPlayer2] = await Promise.all([
+                apiService.fetchData(idCardPlayer1),
+                apiService.fetchData(idCardPlayer2)
+            ]);
+            apiDataPlayer2.statsPlayer2 = statsPlayer2;
+            apiDataPlayer1.idCard = idCardPlayer1;
+            apiDataPlayer1.idBattle = idBattle;
+            apiDataPlayer2.idCard = idCardPlayer2;
+            apiDataPlayer2.idBattle = idBattle;
+            apiDataPlayer1.amountPlayer1 = duel.amountPlayer1;
+            apiDataPlayer2.amountPlayer2 = duel.amountPlayer2;
+            setDataPlayer1(apiDataPlayer1);
+            setDataPlayer2(apiDataPlayer2);
+            await modifyPoints(apiDataPlayer1);
+            setModalIsOpenAVousDeJouer(true);
+        } catch (error) {
+            console.error("Erreur lors de la récupération des données de l'API :", error);
+        }
+    };
+    const handleStatIncrease = (stat) => {
+        if (points > 0) {
+            setStats({
+                ...stats,
+                [stat]: stats[stat] + 1
+            });
+            setPoints(points - 1);
+        }
+    };
+    const handleValidatePlayer1 = async () => {
+        setLoadingAddPlayer1(true);
+        const idBattle = dataPlayer1.idBattle;
+        let statsArray = [dataPlayer1.attributes.stats.mechanique + stats.mecanique,
+            dataPlayer1.attributes.stats.vision_de_jeu + stats.vision_de_jeu,
+            dataPlayer1.attributes.stats.teamplay + stats.teamplay];
+        console.log(idBattle, statsArray)
+        try {
+            const functionCallData = contractInstance.methods.confirmBattle(idBattle, statsArray).encodeABI();
+            const transactionObject = {
+                to: contractAddress,
+                data: functionCallData,
+                gas: web3.utils.toHex(500_000),
+                from: accountAddress,
+            };
+            await web3.eth.accounts.signTransaction(transactionObject, privateKey);
+            setLoadingAddPlayer1(false);
+            await closeModalAVousDeJouer();
+        } catch (error) {
+            console.error('Error:', error);
+        }
     };
     return (
         <div className="row">
@@ -230,6 +318,91 @@ function Duel() {
                 </Modal>
             ) : (
                 <div className="div-title">
+                    <Modal
+                        isOpen={modalIsOpenAVousDeJouer}
+                        onRequestClose={closeModalAVousDeJouer}
+                        contentLabel="Exemple de Modale"
+                        style={{
+                            overlay: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.7)'
+                            },
+                            content: {
+                                backgroundColor: 'rgba(1,6,27)',
+                                boxShadow: '0 0 10px white',
+                                border: 'none',
+                                padding: '20px',
+                                borderRadius: '20px',
+                                width: '600px',
+                                height: '600px',
+                                margin: 'auto',
+                                overflow: 'hidden'
+                            }
+                        }}
+                    >
+                        <button className="btn-modal-close" onClick={closeModalAVousDeJouer}>X</button>
+                        <div className="card-modal-tile-global">
+                            <div className="card-modal-tile">
+                                <img className="modal-img-tile" src={dataPlayer1.image} alt="card"/>
+                                <i style={{fontSize: 13, color: "white", textAlign: "center"}}>Ajouter {points} points
+                                    secondaire</i>
+                                <div style={{color: "white", marginTop: 20}}>
+                                    <div style={{display: "flex", justifyContent: "space-around"}}>
+                                        <i className="fa-solid fa-gears"></i>
+                                        <i className="fa-solid fa-eye"></i>
+                                        <i className="fa-solid fa-handshake-simple"></i>
+                                    </div>
+                                    <div style={{display: "flex", justifyContent: "space-around"}}>
+                                        <p>{dataPlayer1.attributes.stats.mechanique} + {stats.mecanique}</p>
+                                        <p>{dataPlayer1.attributes.stats.vision_de_jeu} + {stats.vision_de_jeu}</p>
+                                        <p>{dataPlayer1.attributes.stats.teamplay} + {stats.teamplay}</p>
+                                    </div>
+                                    <div style={{display: "flex", justifyContent: "space-around"}}>
+                                        <i className="fa-solid fa-circle-plus" style={{color: "white", fontSize: 20}}
+                                           onClick={() => handleStatIncrease('mecanique')}></i>
+                                        <i className="fa-solid fa-circle-plus" style={{color: "white", fontSize: 20}}
+                                           onClick={() => handleStatIncrease('vision_de_jeu')}></i>
+                                        <i className="fa-solid fa-circle-plus" style={{color: "white", fontSize: 20}}
+                                           onClick={() => handleStatIncrease('teamplay')}></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="card-modal-tile">
+                                <img className="modal-img-tile" src={dataPlayer2.image} alt="card"/>
+                                <div style={{color: "white", marginTop: 20}}>
+                                    <div style={{display: "flex", justifyContent: "space-around"}}>
+                                        <i className="fa-solid fa-gears"></i>
+                                        <i className="fa-solid fa-eye"></i>
+                                        <i className="fa-solid fa-handshake-simple"></i>
+                                    </div>
+                                    <div style={{display: "flex", justifyContent: "space-around"}}>
+                                        <p>{dataPlayer2.attributes.stats.mechanique} + ?</p>
+                                        <p>{dataPlayer2.attributes.stats.teamplay} + ?</p>
+                                        <p>{dataPlayer2.attributes.stats.vision_de_jeu} + ?</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br></br><br></br>
+                        <div style={{textAlign: "center"}}>
+                            {dataPlayer1 && dataPlayer1.amountPlayer1 && (
+                                <p style={{
+                                    color: "white",
+                                    textAlign: "center"
+                                }}>
+                                    {web3.utils.fromWei(dataPlayer1.amountPlayer1, 'ether')} eth
+                                </p>
+                            )}
+                            {loadingAddPlayer1 ? (
+                                <Loader/>
+                            ) : (
+                                <input type="button" value="Valider" className="btn-modal-valider-tile"
+                                       style={{width: 200}}
+                                       onClick={() => {
+                                           handleValidatePlayer1();
+                                       }}/>
+                            )}
+                        </div>
+                    </Modal>
                     <h1 className="title-boutique">Duel</h1>
                     <br></br>
                     <div className="state-div">
@@ -252,7 +425,7 @@ function Duel() {
                                 <p style={{fontSize: 12, fontStyle: "italic", color: "grey"}}>rien pour le moment</p>
                             ) : (
                                 listDuelsInProgress.map((duel, index) => (
-                                    <div key={index}>
+                                    <div key={index} onClick={() => openModalAVousDeJouer(duel)}>
                                         <TileDuel duel={duel}/>
                                         <br/>
                                     </div>

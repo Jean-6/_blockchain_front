@@ -56,7 +56,6 @@ function TileDuel({duel}) {
         if (duel.cardIdPlayer2 !== "0") {
             fetchDataFromApiAndContract(setDonneesPlayer2, duel.cardIdPlayer2).then(result => {
                 setDonneesPlayer2(result);
-                console.log(result)
             });
         }
     }, []);
@@ -122,15 +121,12 @@ function TileDuel({duel}) {
             let statsArray = [card.attributes.stats.mechanique + stats.mecanique,
                 card.attributes.stats.vision_de_jeu + stats.vision_de_jeu,
                 card.attributes.stats.teamplay + stats.teamplay];
-
-            console.log(statsArray, idCard, battleId);
             const functionCallData = contractInstance.methods.selectBattle(idCard, battleId, statsArray).encodeABI();
             const transactionObject = {
                 to: contractAddress,
                 data: functionCallData,
                 value: web3.utils.toWei('0.000001', 'ether'),
-                gas: web3.utils.toHex(5000000),
-                gasPrice: web3.utils.toHex(web3.utils.toWei('10', 'gwei')),
+                gas: web3.utils.toHex(5_000_000),
                 from: accountAddress,
             };
             const signedTx = await web3.eth.accounts.signTransaction(transactionObject, privateKey);
