@@ -180,7 +180,6 @@ function Duel() {
                 }
             });
         }
-        console.log(listDuels)
     }, [dataLoaded]);
     const modifyPoints = async (card) => {
         if (card.attributes.rarity === "commune") {
@@ -258,7 +257,6 @@ function Duel() {
         let statsArray = [dataPlayer1.attributes.stats.mechanique + stats.mecanique,
             dataPlayer1.attributes.stats.vision_de_jeu + stats.vision_de_jeu,
             dataPlayer1.attributes.stats.teamplay + stats.teamplay];
-        console.log(idBattle, statsArray)
         try {
             const functionCallData = contractInstance.methods.confirmBattle(idBattle, statsArray).encodeABI();
             const transactionObject = {

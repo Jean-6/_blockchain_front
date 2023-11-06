@@ -35,6 +35,7 @@ async function fetchAllCardsFromPlayer() {
 }
 
 function TileDuel({duel}) {
+    console.log(duel)
     Modal.setAppElement('#root');
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [modalIsOpenChooseCard, setModalIsOpenChooseCard] = useState(false);
@@ -294,7 +295,12 @@ function TileDuel({duel}) {
             <div className="tile-local" style={{margin: 10}}>
                 {duel.mine ? (
                     <div className="tile-local">
-                        <img className="tile-image" src={donnees.image} alt="Card"/>
+                        <img
+                            className={`${duel.status !== "done" ? "tile-image" : duel.draw ? "tile-image tile-image-draw" :
+                                duel.player1 === duel.winner ? "tile-image tile-image-win" : "tile-image tile-image-lose"
+                            }
+                            `}
+                            src={donnees.image} alt="Card"/>
                         <p className="text-tile">{web3.utils.fromWei(duel.amountPlayer1) + ' eth'}</p>
                     </div>
                 ) : (
@@ -310,8 +316,12 @@ function TileDuel({duel}) {
             {
                 duel.cardIdPlayer2 !== "0" ? (
                     <div className="tile-local reversed-div">
-                        <img className="tile-image" src={donneesPlayer2.image} alt="Card"/>
-                        <p className="text-tile">{web3.utils.fromWei(duel.amountPlayer2) + ' ethh'}</p>
+                        <img
+                            className={`${duel.status !== "done" ? "tile-image" : duel.draw ? "tile-image tile-image-draw" :
+                                duel.player2 === duel.winner ? "tile-image tile-image-win" : "tile-image tile-image-lose"
+                            }
+                            `} src={donneesPlayer2.image} alt="Card"/>
+                        <p className="text-tile">{web3.utils.fromWei(duel.amountPlayer2) + ' eth'}</p>
                     </div>
                 ) : (
                     <div className="tile-local">

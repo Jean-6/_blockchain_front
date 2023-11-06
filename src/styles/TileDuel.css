@@ -19,6 +19,17 @@
     border-radius: 90px;
 }
 
+.tile-image-draw {
+    border: 2px solid orange;
+}
+.tile-image-win{
+    border: 2px solid green;
+}
+
+.tile-image-lose{
+    border: 2px solid red;
+}
+
 .modal-img-tile {
     width: 200px;
     border-radius: 10px;
