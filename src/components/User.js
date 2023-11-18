@@ -21,8 +21,20 @@ export default function User() {
             .catch((err) => {
                 navigate('/signin');
             });
+        //call the api to get the /get-all-balance
+        axios(`${process.env.REACT_APP_SERVER_URL}/get-all-balance`, {
+            withCredentials: true,
+        })
+            .then(({data}) => {
+                // Handle the response data here...
+                console.log(data);
+            })
+            .catch((err) => {
+                // Handle the error here...
+                console.error(err);
+            });
     }, []);
-
+//
     async function signOut() {
         await axios(`${process.env.REACT_APP_SERVER_URL}/logout`, {
             withCredentials: true,
@@ -32,7 +44,7 @@ export default function User() {
     }
 
     return (
-        <div>
+        <div style={{color:"white"}}>
             <h3>User session:</h3>
             <pre>{JSON.stringify(session, null, 2)}</pre>
             <button type="button" onClick={signOut}>
