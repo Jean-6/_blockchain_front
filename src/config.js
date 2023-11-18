@@ -3,7 +3,7 @@ import abiJson from "./abi.json";
 
 const network = 'https://eth-sepolia.g.alchemy.com/v2/ABRLHWqw7mF6DYgLygNgwsUpMnQ5XGh5';
 const web3 = new Web3(new Web3.providers.HttpProvider(network));
-const contractAddress = '0x42D3944442bEf05779F1Eb14f4D1A96d7dB7BC2a';
+const contractAddress = '0xfCb712Ebba5323b0562Ec712452325A4E33863CD';
 let contractABI = abiJson.abi;
 const contractInstance = new web3.eth.Contract(contractABI, contractAddress);
 /*const accountAddress = '0x85487A17c47e08A0480E38B6C8306001Ed810dC0';*/
