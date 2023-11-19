@@ -26,15 +26,13 @@ export default function User() {
             withCredentials: true,
         })
             .then(({data}) => {
-                // Handle the response data here...
                 console.log(data);
             })
             .catch((err) => {
-                // Handle the error here...
                 console.error(err);
             });
     }, []);
-//
+
     async function signOut() {
         await axios(`${process.env.REACT_APP_SERVER_URL}/logout`, {
             withCredentials: true,
