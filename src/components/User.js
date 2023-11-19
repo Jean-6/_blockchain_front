@@ -15,21 +15,10 @@ export default function User() {
         })
             .then(({data}) => {
                 const {iat, ...authData} = data; // remove unimportant iat value
-
                 setSession(authData);
             })
             .catch((err) => {
                 navigate('/signin');
-            });
-        //call the api to get the /get-all-balance
-        axios(`${process.env.REACT_APP_SERVER_URL}/get-all-balance`, {
-            withCredentials: true,
-        })
-            .then(({data}) => {
-                console.log(data);
-            })
-            .catch((err) => {
-                console.error(err);
             });
     }, []);
 

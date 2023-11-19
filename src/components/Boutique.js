@@ -1,15 +1,28 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import "../styles/Boutique.css";
 import SideNav from "./SideNav.js";
 import RevealCards from "./RevealCards.js";
 import Loader from "./Loader.js";
 
 import {contractInstance, accountAddress, contractAddress, web3, privateKey} from "../config.js";
+import apiService from "../services/ApiService.js";
 
 let idCard;
 
 function RenderBoutique({handleBuyClick, loading}) {
-
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const address = await apiService.authenticate();
+                const res = await apiService.openPack(address);
+                console.log(res);
+            } catch (e) {
+                console.log(e)
+                /*window.location.href = "/signin";*/
+            }
+        };
+        fetchData();
+    }, []);
     return (
         <div className="global-cards">
             <h1 className="title-boutique">Boutique</h1>

@@ -51,9 +51,24 @@ export default function SignIn() {
     };
 
     return (
-        <div>
-            <h3>Web3 Authentication</h3>
-            <button onClick={() => handleAuth()}>Authenticate via MetaMask</button>
+        <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh'}}>
+            <button
+                style={{
+                    backgroundColor: '#4CAF50', /* Green */
+                    border: 'none',
+                    color: 'white',
+                    padding: '15px 32px',
+                    textAlign: 'center',
+                    textDecoration: 'none',
+                    display: 'inline-block',
+                    fontSize: '16px',
+                    margin: '4px 2px',
+                    cursor: 'pointer'
+                }}
+                onClick={() => handleAuth()}
+            >
+                Authenticate via MetaMask
+            </button>
         </div>
     );
 }

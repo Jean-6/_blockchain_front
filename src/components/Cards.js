@@ -5,7 +5,7 @@ import "../styles/ContextMenu.css";
 import SideNav from "./SideNav.js";
 import Loader from "./Loader.js";
 import Select from 'react-select';
-import {contractInstance, accountAddress, contractAddress} from "../config.js";
+import {contractAddress} from "../config.js";
 
 let cardsPlayer = [];
 let listJsonCards = [];
@@ -16,17 +16,11 @@ const colourOptions = [
     {value: "Legendaire", label: "Légendaire"}
 ];
 
-async function fetchDataFromApiAndContract(setDonnees, setLoading) {
+async function fetchDataFromApiAndContract(setDonnees, setLoading, address) {
     listJsonCards = [];
     try {
         setLoading(true);
-        await contractInstance.methods.getAllBalance(accountAddress).call()
-            .then(result => {
-                cardsPlayer = result;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+        cardsPlayer = await apiService.getAllBalanceOfUser(address);
         for (let i = 0; i < cardsPlayer.length; i++) {
             if (cardsPlayer[i] !== "0") {
                 apiData = await apiService.fetchData(i + 1);
@@ -64,7 +58,15 @@ function Cards() {
     const [selectedRarity, setSelectedRarity] = useState(colourOptions);
 
     useEffect(() => {
-        fetchDataFromApiAndContract(setDonnees, setLoading);
+        const fetchData = async () => {
+            try {
+                const address = await apiService.authenticate();
+                fetchDataFromApiAndContract(setDonnees, setLoading, address);
+            } catch (e) {
+                window.location.href = "/signin";
+            }
+        };
+        fetchData();
     }, []);
 
     const filteredCards = selectedRarity.length > 0
