@@ -1,6 +1,6 @@
 import "../styles/TileDuel.css";
 
-import {accountAddress, contractAddress, contractInstance, privateKey, web3} from "../config.js";
+import {contractAddress, contractInstance, web3} from "../config.js";
 import apiService from "../services/ApiService.js";
 import React, {useEffect, useState} from "react";
 import Modal from "react-modal";
@@ -17,7 +17,11 @@ async function fetchDataFromApiAndContract(setDonnees, idCard) {
 }
 
 async function fetchAllCardsFromPlayer() {
-    await contractInstance.methods.getAllBalance(accountAddress).call()
+    const address = await apiService.getAccount().then(result => {
+        if (result === undefined) return window.location.href = "/signin";
+        return result;
+    });
+    await contractInstance.methods.getAllBalance(address).call()
         .then(async result => {
             apiData = [];
             for (let i = 0; i < result.length; i++) {
@@ -50,8 +54,14 @@ function TileDuel({duel}) {
         vision_de_jeu: 0,
         teamplay: 0
     });
+    const [address, setAccountAddress] = useState("");
     useEffect(() => {
-        fetchDataFromApiAndContract(setDonnees, duel.cardIdPlayer1).then(result => {
+        fetchDataFromApiAndContract(setDonnees, duel.cardIdPlayer1).then(async result => {
+            const address = await apiService.getAccount().then(result => {
+                if (result === undefined) return window.location.href = "/signin";
+                return result;
+            });
+            setAccountAddress(address);
             setDonnees(result);
         });
         if (duel.cardIdPlayer2 !== "0") {
@@ -128,13 +138,29 @@ function TileDuel({duel}) {
                 data: functionCallData,
                 value: web3.utils.toWei('0.000001', 'ether'),
                 gas: web3.utils.toHex(5_000_000),
-                from: accountAddress,
+                from: address,
             };
-            const signedTx = await web3.eth.accounts.signTransaction(transactionObject, privateKey);
-            const receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
+            const result = await window.ethereum.request({
+                method: 'eth_sendTransaction',
+                params: [transactionObject],
+            });
+
+            let receipt;
+            while (!receipt) {
+                receipt = await web3.eth.getTransactionReceipt(result.toString(), (err, _) => {
+                    if (err) {
+                        console.error('Error:', err);
+                    }
+                });
+                if (!receipt) {
+                    // Wait for a short duration before checking again
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
+            // Continue with your logic
             const events = await contractInstance.getPastEvents('BattleSelected', {
                 fromBlock: receipt.blockNumber,
-                toBlock: receipt.blockNumber
+                toBlock: receipt.blockNumber,
             });
             setLoadingAddPlayer2(false);
             if (events[0].returnValues._res) {
