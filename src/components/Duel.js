@@ -8,18 +8,18 @@ import Modal from "react-modal";
 import "../styles/Cards.css";
 import "../styles/Duel.css";
 import "../styles/TileDuel.css";
-import {contractInstance, accountAddress, contractAddress, web3, privateKey} from "../config.js";
+import {contractInstance, contractAddress, web3} from "../config.js";
 import TileDuel from "./TileDuel.js";
 
 let cardsPlayer = [];
 let jsonCards;
 let apiData = [];
 
-async function fetchDataFromApiAndContract(setDonnees, setLoading, idCard) {
+async function fetchDataFromApiAndContract(setDonnees, setLoading, idCard, address) {
     jsonCards = null;
     try {
         setLoading(true);
-        await contractInstance.methods.getAllBalance(accountAddress).call()
+        await contractInstance.methods.getAllBalance(address).call()
             .then(result => {
                 cardsPlayer = result;
             })
@@ -42,20 +42,37 @@ async function fetchDataFromApiAndContract(setDonnees, setLoading, idCard) {
     }
 }
 
-async function validateDuelPlayer1(idCard, setLoading) {
+async function validateDuelPlayer1(idCard, setLoading, address) {
     try {
         setLoading(true);
         const functionCallData = contractInstance.methods.initBattle(idCard).encodeABI();
         const transactionObject = {
             to: contractAddress,
             data: functionCallData,
-            value: web3.utils.toWei('0.000001', 'ether'),
-            gas: web3.utils.toHex(700000),
+            value: web3.utils.toHex(web3.utils.toWei('0.000001', 'ether')),
+            gas: web3.utils.toHex(5_000_000),
             gasPrice: web3.utils.toHex(web3.utils.toWei('10', 'gwei')),
-            from: accountAddress,
+            from: address,
+            gasLimit: '0x5028',
+
         };
-        const signedTx = await web3.eth.accounts.signTransaction(transactionObject, privateKey);
-        await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
+        const result = await window.ethereum.request({
+            method: 'eth_sendTransaction',
+            params: [transactionObject],
+        });
+
+        let receipt;
+        while (!receipt) {
+            receipt = await web3.eth.getTransactionReceipt(result.toString(), (err, _) => {
+                if (err) {
+                    console.error('Error:', err);
+                }
+            });
+            if (!receipt) {
+                // Wait for a short duration before checking again
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+        }
         setLoading(false);
     } catch (error) {
         console.error('Error:', error);
@@ -118,6 +135,7 @@ function Duel() {
         vision_de_jeu: 0,
         teamplay: 0
     });
+    const [address, setAccountAddress] = useState("");
 
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
@@ -125,8 +143,13 @@ function Duel() {
         const idCard = queryParams.get("idCard");
 
         async function fetchData() {
+            const address = await apiService.getAccount().then(result => {
+                if (result === undefined) return window.location.href = "/signin";
+                return result;
+            });
+            setAccountAddress(address);
             if (fight === "true") {
-                fetchDataFromApiAndContract(setDonnees, setLoading, idCard);
+                await fetchDataFromApiAndContract(setDonnees, setLoading, idCard, address);
             } else {
                 setDonnees(null);
                 await getAllBattle(
@@ -146,17 +169,18 @@ function Duel() {
     }, [location.search]);
 
     useEffect(() => {
+
         if (dataLoaded) {
             const updatedDuels = listDuels.map(duel => {
                 let updatedDuel = {...duel}; // Créez un nouvel objet en copiant les propriétés de duel
-                if (duel.player1.toLowerCase() !== accountAddress.toLowerCase() && duel.player2.toLowerCase() !== accountAddress.toLowerCase()) {
+                if (duel.player1.toLowerCase() !== address.toLowerCase() && duel.player2.toLowerCase() !== address.toLowerCase()) {
                     updatedDuel.mine = false;
                 }
                 return updatedDuel;
             });
             updatedDuels.forEach(duel => {
-                if (duel.player1.toLowerCase() === accountAddress.toLowerCase() || duel.player2.toLowerCase() === accountAddress.toLowerCase()) {
-                    if (duel.player1.toLowerCase() === accountAddress.toLowerCase()) {
+                if (duel.player1.toLowerCase() === address.toLowerCase() || duel.player2.toLowerCase() === address.toLowerCase()) {
+                    if (duel.player1.toLowerCase() === address.toLowerCase()) {
                         if (duel.status === "waitP2") {
                             setListDuelsWaiting(listDuelsWaiting => [...listDuelsWaiting, duel]);
                         } else if (duel.status === "waitP1") {
@@ -258,14 +282,37 @@ function Duel() {
             dataPlayer1.attributes.stats.vision_de_jeu + stats.vision_de_jeu,
             dataPlayer1.attributes.stats.teamplay + stats.teamplay];
         try {
+
+            // Check if MetaMask is available
+            if (!window.ethereum) {
+                throw new Error('MetaMask not detected. Please install MetaMask extension.');
+            }
+
+
             const functionCallData = contractInstance.methods.confirmBattle(idBattle, statsArray).encodeABI();
             const transactionObject = {
                 to: contractAddress,
                 data: functionCallData,
                 gas: web3.utils.toHex(500_000),
-                from: accountAddress,
+                from: address,
             };
-            await web3.eth.accounts.signTransaction(transactionObject, privateKey);
+            const result = await window.ethereum.request({
+                method: 'eth_sendTransaction',
+                params: [transactionObject],
+            });
+
+            let receipt;
+            while (!receipt) {
+                receipt = await web3.eth.getTransactionReceipt(result.toString(), (err, _) => {
+                    if (err) {
+                        console.error('Error:', err);
+                    }
+                });
+                if (!receipt) {
+                    // Wait for a short duration before checking again
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
             setLoadingAddPlayer1(false);
             await closeModalAVousDeJouer();
         } catch (error) {
@@ -308,7 +355,7 @@ function Duel() {
                             <Loader/>
                         ) : (
                             <input type="button" value="Valider" className="btn-modal-valider"
-                                   onClick={() => validateDuelPlayer1(donnees.idCard, setLoading).then(() =>
+                                   onClick={() => validateDuelPlayer1(donnees.idCard, setLoading, address).then(() =>
                                        closeModal()
                                    )}/>
                         )}

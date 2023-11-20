@@ -1,11 +1,10 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useState} from "react";
 import "../styles/Boutique.css";
 import SideNav from "./SideNav.js";
 import RevealCards from "./RevealCards.js";
 import Loader from "./Loader.js";
 
-import {contractInstance, contractAddress, web3, privateKey} from "../config.js";
-import apiService from "../services/ApiService.js";
+import {contractInstance, contractAddress, web3} from "../config.js";
 
 let idCard;
 
@@ -62,11 +61,10 @@ function Boutique() {
                 method: 'eth_sendTransaction',
                 params: [transactionObject],
             });
-            console.log('Transaction sent:', result);
 
             let receipt;
             while (!receipt) {
-                receipt = await web3.eth.getTransactionReceipt(result.toString(), (err, res) => {
+                receipt = await web3.eth.getTransactionReceipt(result.toString(), (err, _) => {
                     if (err) {
                         console.error('Error:', err);
                     }
@@ -76,7 +74,6 @@ function Boutique() {
                     await new Promise(resolve => setTimeout(resolve, 1000));
                 }
             }
-            console.log('Transaction receipt mined:', receipt);
             // Continue with your logic
             const events = await contractInstance.getPastEvents('TransferSingle', {
                 fromBlock: receipt.blockNumber,
