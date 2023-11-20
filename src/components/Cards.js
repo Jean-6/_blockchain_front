@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import apiService from "../services/ApiService.js";
 import "../styles/Cards.css";
 import "../styles/ContextMenu.css";
@@ -66,11 +66,23 @@ function Cards() {
     const [donnees, setDonnees] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedRarity, setSelectedRarity] = useState(colourOptions);
-
+    const initialized = useRef(false);
     useEffect(() => {
-        fetchDataFromApiAndContract(setDonnees, setLoading);
+        fetchData();
     }, []);
+    const fetchData = async () => {
+        try {
+            if (!initialized.current) {
+                console.log("useEffect");
+                console.log(initialized.current)
+                initialized.current = true;
+                await fetchDataFromApiAndContract(setDonnees, setLoading);
+            }
 
+        } catch (e) {
+            window.location.href = "/signin";
+        }
+    };
     const filteredCards = selectedRarity.length > 0
         ? donnees.filter(card => selectedRarity.some(selectedRarity => selectedRarity.value.toLowerCase() === card.attributes.rarity))
         : donnees;
