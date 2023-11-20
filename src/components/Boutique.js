@@ -34,34 +34,71 @@ function Boutique() {
     const handleBuyClick = async () => {
         try {
             setLoading(true);
-            const address = await apiService.getAccount().then(result => {
-                if (result === undefined) return window.location.href = "/signin";
-                return result;
-            });
+
+            // Check if MetaMask is available
+            if (!window.ethereum) {
+                throw new Error('MetaMask not detected. Please install MetaMask extension.');
+            }
+
+            // Request account access
+            const accounts = await window.ethereum.request({method: 'eth_requestAccounts'});
+
+            // Get the selected account
+            const address = accounts[0];
+
             const functionCallData = contractInstance.methods.openPack().encodeABI();
             const transactionObject = {
                 to: contractAddress,
                 data: functionCallData,
-                value: web3.utils.toWei('0.000001', 'ether'),
+                value: web3.utils.toHex(web3.utils.toWei('0.000001', 'ether')),
                 gas: web3.utils.toHex(5_000_000),
                 gasPrice: web3.utils.toHex(web3.utils.toWei('10', 'gwei')),
                 from: address,
+                gasLimit: '0x5028',
+
             };
-            console.log(transactionObject)
-            const signedTx = await web3.eth.accounts.signTransaction(transactionObject, privateKey);
-            const receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
+
+            const result = await window.ethereum.request({
+                method: 'eth_sendTransaction',
+                params: [transactionObject],
+            });
+            console.log('Transaction sent:', result);
+
+            let receipt;
+            while (!receipt) {
+                receipt = await web3.eth.getTransactionReceipt(result.toString(), (err, res) => {
+                    if (err) {
+                        console.error('Error:', err);
+                    }
+                });
+                if (!receipt) {
+                    // Wait for a short duration before checking again
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
+            console.log('Transaction receipt mined:', receipt);
+            // Continue with your logic
             const events = await contractInstance.getPastEvents('TransferSingle', {
                 fromBlock: receipt.blockNumber,
-                toBlock: receipt.blockNumber
+                toBlock: receipt.blockNumber,
             });
-            idCard = events[0].returnValues.id;
-            setLoading(false);
-            setdisplayShop(!displayShop);
+
+            // Check if events array is not empty
+            if (events.length > 0) {
+                idCard = events[0].returnValues.id;
+                setLoading(false);
+                setdisplayShop(!displayShop);
+            } else {
+                // Handle the case where no events are found
+                console.error('No events found for TransferSingle');
+                setLoading(false);
+            }
         } catch (error) {
             setLoading(false);
             console.error('Error:', error);
         }
     };
+
 
     return (
         <div className="row">
