@@ -1,10 +1,11 @@
-import React, {useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import "../styles/Boutique.css";
 import SideNav from "./SideNav.js";
 import RevealCards from "./RevealCards.js";
 import Loader from "./Loader.js";
 
-import {contractInstance, accountAddress, contractAddress, web3, privateKey} from "../config.js";
+import {contractInstance, contractAddress, web3, privateKey} from "../config.js";
+import apiService from "../services/ApiService.js";
 
 let idCard;
 
@@ -33,6 +34,10 @@ function Boutique() {
     const handleBuyClick = async () => {
         try {
             setLoading(true);
+            const address = await apiService.getAccount().then(result => {
+                if (result === undefined) return window.location.href = "/signin";
+                return result;
+            });
             const functionCallData = contractInstance.methods.openPack().encodeABI();
             const transactionObject = {
                 to: contractAddress,
@@ -40,8 +45,9 @@ function Boutique() {
                 value: web3.utils.toWei('0.000001', 'ether'),
                 gas: web3.utils.toHex(5_000_000),
                 gasPrice: web3.utils.toHex(web3.utils.toWei('10', 'gwei')),
-                from: accountAddress,
+                from: address,
             };
+            console.log(transactionObject)
             const signedTx = await web3.eth.accounts.signTransaction(transactionObject, privateKey);
             const receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
             const events = await contractInstance.getPastEvents('TransferSingle', {

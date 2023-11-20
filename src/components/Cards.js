@@ -73,8 +73,6 @@ function Cards() {
     const fetchData = async () => {
         try {
             if (!initialized.current) {
-                console.log("useEffect");
-                console.log(initialized.current)
                 initialized.current = true;
                 await fetchDataFromApiAndContract(setDonnees, setLoading);
             }
