@@ -20,7 +20,11 @@ async function fetchDataFromApiAndContract(setDonnees, setLoading) {
     listJsonCards = [];
     try {
         setLoading(true);
-        await contractInstance.methods.getAllBalance(accountAddress).call()
+        const address = await apiService.getAccount().then(result => {
+            if (result === undefined) return window.location.href = "/signin";
+            return result;
+        });
+        await contractInstance.methods.getAllBalance(address).call()
             .then(result => {
                 cardsPlayer = result;
             })

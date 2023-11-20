@@ -3,10 +3,17 @@ import ReactDOM from 'react-dom/client';
 import './styles/index.css';
 import App from './App.js';
 import reportWebVitals from './reportWebVitals.js';
+import {MetaMaskUIProvider} from '@metamask/sdk-react-ui';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-    <App/>
+    <MetaMaskUIProvider sdkOptions={{
+        dappMetadata: {
+            name: "Demo UI React App",
+        }
+    }}>
+        <App/>
+    </MetaMaskUIProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function

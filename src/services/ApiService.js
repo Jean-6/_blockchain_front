@@ -12,6 +12,18 @@ const apiService = {
             throw error;
         }
     },
+    getAccount: async () => {
+        try {
+            const response = await window.ethereum.request({method: 'eth_requestAccounts'})
+                .catch((err) => {
+                    throw err;
+                })
+            console.log(response[0])
+            return response[0];
+        } catch (error) {
+            throw error;
+        }
+    }
 };
 
 
