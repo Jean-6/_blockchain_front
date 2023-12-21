@@ -92,7 +92,7 @@ function Cards() {
         contextMenu.style.left = e.pageX + "px";
         contextMenu.style.top = e.pageY + "px";
         let linkOpenSea = document.querySelector("#linkOpenSea");
-        linkOpenSea.href = "https://testnets.opensea.io/assets/" + contractAddress + "/" + idCard;
+        linkOpenSea.href = "https://testnets.opensea.io/assets/sepolia/" + contractAddress + "/" + idCard;
         document.body.addEventListener('click', disableContextMenu, true);
         const queryParams = {
             idCard: idCard,
