@@ -136,9 +136,11 @@ function TileDuel({duel}) {
             const transactionObject = {
                 to: contractAddress,
                 data: functionCallData,
-                value: web3.utils.toWei('0.000001', 'ether'),
-                gas: web3.utils.toHex(5_000_000),
+                value: web3.utils.toHex(web3.utils.toWei('0.000001', 'ether')),
+                gas: web3.utils.toHex(1_000_000),
+                gasPrice: web3.utils.toHex(web3.utils.toWei('300', 'gwei')),
                 from: address,
+                gasLimit: '0x5028',
             };
             const result = await window.ethereum.request({
                 method: 'eth_sendTransaction',

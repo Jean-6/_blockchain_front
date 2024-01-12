@@ -50,8 +50,8 @@ function Boutique() {
                 to: contractAddress,
                 data: functionCallData,
                 value: web3.utils.toHex(web3.utils.toWei('0.000001', 'ether')),
-                gas: web3.utils.toHex(5_000_000),
-                gasPrice: web3.utils.toHex(web3.utils.toWei('10', 'gwei')),
+                gas: web3.utils.toHex(1_000_000),
+                gasPrice: web3.utils.toHex(web3.utils.toWei('300', 'gwei')),
                 from: address,
                 gasLimit: '0x5028',
 
